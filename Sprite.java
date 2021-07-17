@@ -7,6 +7,5 @@ import java.awt.image.*;
     String movingAnimLocation;
     String idleAnimLocation;
     boolean orientation; //true is looking right, false is looking left
-    File[] movingAnimationArray; //list of moving character animations.
-    File[] idleAnimationArray;//list of idle character animations.
+
 }
