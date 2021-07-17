@@ -11,7 +11,7 @@ public class Main {
         while (true) {
             mario.animateCharacter(panel);
             game.repaint();
-            waitXSeconds(42);
+            waitXSeconds(50);
 
         }
     }

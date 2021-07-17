@@ -9,16 +9,18 @@ import javax.imageio.*;
 import java.awt.image.*;
 
 public class MarioSprite extends Sprite {
-    int animationFrame = 10;
+    int animationFrame = 0;
     Thread animationThread;
     ImageIcon character;
     JLabel imageLabel;
     File[] idleAnimationArray;
+    boolean forward;
     File[] movingAnimationArray; // list of moving character animations.
 
     public MarioSprite(JPanel panel) {
         posX = 0;
         posY = 0;
+        forward = true;
         idleAnimLocation = "/Users/yassine/Documents/GitHub/MarioGame/images/Idle/";
         File f = new File(idleAnimLocation);
         idleAnimationArray = f.listFiles();
@@ -42,10 +44,21 @@ public class MarioSprite extends Sprite {
     }
 
     private void progressAnimationFrame() {
-        if (animationFrame < 28) {
-            animationFrame++;
-        } else
-            animationFrame = 0;
+        if (forward) {
+            if (animationFrame < 27) {
+                animationFrame++;
+            } else {
+                animationFrame--;
+                this.forward = false;
+            }
+        } else {
+            if (animationFrame > 0) {
+                animationFrame--;
+            } else {
+                animationFrame++;
+                forward = true;
+            }
+        }
     }
 
     public void animateCharacter(JPanel panel) {
@@ -82,19 +95,20 @@ public class MarioSprite extends Sprite {
                     continue;
                 }
                 check = file[x].getAbsolutePath();
-                
 
                 if (check.contains(".DS")) {
                     continue;
                 }
 
                 for (int z = 0; z < file.length; z++) {
-                    if (file[z] == null){
+                    if (file[z] == null) {
                         continue;
                     }
                     small = file[z].getAbsolutePath();
 
-                    if (small.contains(".DS")){continue;}
+                    if (small.contains(".DS")) {
+                        continue;
+                    }
 
                     if (check.compareTo(small) > 0) {
                         smallestFile = file[z];
