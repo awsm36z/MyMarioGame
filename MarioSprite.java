@@ -1,11 +1,9 @@
 import java.io.*;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
 
 import javax.swing.*;
 import javax.imageio.*;
+
+import java.awt.Image;
 import java.awt.image.*;
 
 public class MarioSprite extends Sprite {
@@ -15,11 +13,12 @@ public class MarioSprite extends Sprite {
     JLabel imageLabel;
     File[] idleAnimationArray;
     boolean forward;
+    int scale = 1;
     File[] movingAnimationArray; // list of moving character animations.
 
     public MarioSprite(JPanel panel) {
-        posX = 0;
-        posY = 0;
+        posX = 100;
+        posY = 100;
         forward = true;
         idleAnimLocation = "/Users/yassine/Documents/GitHub/MarioGame/images/Idle/";
         File f = new File(idleAnimLocation);
@@ -30,17 +29,6 @@ public class MarioSprite extends Sprite {
         imageLabel = new JLabel(character);
         panel.add(imageLabel);
 
-        // new Thread (new Runnable(){
-        // public void run(){
-        // while (true){
-        // if (animationFrame < 28){
-        // animationFrame++;
-        // }
-        // else{animationFrame = 0;}
-        // character.setImage(Character(temp));
-        // }}
-
-        // }).start();
     }
 
     private void progressAnimationFrame() {
@@ -76,53 +64,65 @@ public class MarioSprite extends Sprite {
             image = ImageIO.read(temp[animationFrame]);
         } catch (IOException e) {
         }
+        
+        Image scaledImage = image.getScaledInstance(100 * scale, -1, Image.SCALE_AREA_AVERAGING);
+        image.createGraphics().create().drawImage(scaledImage, posX, posY, null);
         return image;
+
     }
 
     // sort order of animation image arrays
     private File[] sortFileArray(File[] file) {
-        File[] buffer = new File[file.length];
-        File smallestFile;
-        String small;
-        String check;
-        int smallIndex = 0;
-        int bufferIndex = 0;
-        for (int i = 0; i < 4; i++) {
-            smallestFile = new File("C:/");
-            for (int x = 0; x < file.length; x++) {
-                smallestFile = file[x];
-                if (file[x] == null) {
-                    continue;
+        File[] sorted = file;
+        int bubble = 1;
+        for (int i = bubble; i < sorted.length; i = bubble) {
+            boolean small = false;
+            while (!small) {
+                if (isBubbleLessThanSize(sorted, bubble) && isBiggerThanNext(sorted, bubble)) {
+                    File temp = sorted[bubble];
+                    sorted[bubble] = sorted[bubble + 1];
+                    sorted[bubble + 1] = temp;
                 }
-                check = file[x].getAbsolutePath();
-
-                if (check.contains(".DS")) {
-                    continue;
+                if (isSmallerThanBefore(sorted, bubble)) {
+                    File temp = sorted[bubble];
+                    sorted[bubble] = sorted[bubble - 1];
+                    sorted[bubble - 1] = temp;
+                    if (bubble > 1) {
+                        bubble--;
+                    }
+                } else {
+                    small = true;
                 }
-
-                for (int z = 0; z < file.length; z++) {
-                    if (file[z] == null) {
-                        continue;
-                    }
-                    small = file[z].getAbsolutePath();
-
-                    if (small.contains(".DS")) {
-                        continue;
-                    }
-
-                    if (check.compareTo(small) > 0) {
-                        smallestFile = file[z];
-                        check = small;
-                        smallIndex = z;
-                    }
-
-                }
-                buffer[bufferIndex] = smallestFile;
-                file[smallIndex] = null;
-                bufferIndex++;
             }
+            bubble = i + 1;
         }
-        return buffer;
+        sorted = getRidOfFirstElement(sorted);
+        return sorted;
+
     }
 
+    //check to see if element is bigger than the next element
+    private boolean isBiggerThanNext(File[] sorted, int bubble) {
+        return sorted[bubble].getAbsolutePath().compareTo(sorted[bubble + 1].getAbsolutePath()) > 0;
+    }
+
+    //checks to make sure bubble value is less than the size of the 
+    //array to avoid indexOutOfBounds Exception
+    private boolean isBubbleLessThanSize(File[] sorted, int bubble) {
+        return bubble + 1 < sorted.length;
+    }
+
+    //checks to see if the element is smaller than the previous element.
+    private boolean isSmallerThanBefore(File[] sorted, int bubble) {
+        return sorted[bubble].getAbsolutePath().compareTo(sorted[bubble - 1].getAbsolutePath()) < 0;
+    }
+    
+    //gets rid of .DS_Store file
+    private File[] getRidOfFirstElement(File[] f) {
+        File[] augmented = new File[f.length - 1];
+        for (int i = 1; i < f.length; i++) {
+            augmented[i - 1] = f[i];
+        }
+        return augmented;
+    }
 }
